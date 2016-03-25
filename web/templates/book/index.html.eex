@@ -12,8 +12,8 @@
   <tbody>
 <%= for book <- @books do %>
     <tr>
-      <td><%= book.title %></td>
       <td><%= book.isbn %></td>
+      <td><%= book.title %></td>
 
       <td class="text-right">
         <%= link "Show", to: book_path(@conn, :show, book), class: "btn btn-default btn-xs" %>
