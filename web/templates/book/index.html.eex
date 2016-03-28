@@ -1,10 +1,10 @@
-<h2>Listing books</h2>
+<h2>Bookshelf</h2>
 
 <table class="table">
   <thead>
     <tr>
-      <th>Title</th>
       <th>ISBN</th>
+      <th>Title</th>
 
       <th></th>
     </tr>
