@@ -9,8 +9,8 @@ defmodule PhoenixBookshelf.Book do
     timestamps
   end
 
-  @required_fields ~w(title isbn)
-  @optional_fields ~w(image_url)
+  @required_fields ~w(isbn)
+  @optional_fields ~w(title image_url)
 
   @doc """
   Creates a changeset based on the `model` and `params`.
@@ -22,6 +22,8 @@ defmodule PhoenixBookshelf.Book do
     model
     |> cast(params, @required_fields, @optional_fields)
     |> validate_length(:isbn, min: 10)
-    |> validate_length(:isbn, max: 14)
+    |> validate_length(:isbn, max: 13)
+    |> validate_format(:isbn, ~r/^[0-9]*$/)
+    |> unique_constraint(:isbn, message: "ISBN has already been added")
   end
 end

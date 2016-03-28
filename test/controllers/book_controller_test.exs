@@ -2,7 +2,7 @@ defmodule PhoenixBookshelf.BookControllerTest do
   use PhoenixBookshelf.ConnCase
 
   alias PhoenixBookshelf.Book
-  @valid_attrs %{isbn: "some content", title: "some content"}
+  @valid_attrs %{isbn: "9781408855713", title: "Harry Potter and the Deathly Hallows"}
   @invalid_attrs %{}
 
   test "lists all entries on index", %{conn: conn} do
