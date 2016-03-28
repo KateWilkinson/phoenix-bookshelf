@@ -16,7 +16,7 @@ defmodule PhoenixBookshelf.Router do
   scope "/", PhoenixBookshelf do
     pipe_through :browser # Use the default browser stack
 
-    get "/", PageController, :index
+    get "/", BookController, :index
     resources "/books", BookController
   end
 

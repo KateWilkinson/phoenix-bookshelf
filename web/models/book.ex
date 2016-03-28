@@ -4,12 +4,13 @@ defmodule PhoenixBookshelf.Book do
   schema "books" do
     field :title, :string
     field :isbn, :string
+    field :image_url, :string
 
     timestamps
   end
 
   @required_fields ~w(title isbn)
-  @optional_fields ~w()
+  @optional_fields ~w(image_url)
 
   @doc """
   Creates a changeset based on the `model` and `params`.
