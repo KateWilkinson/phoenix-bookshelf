@@ -3,9 +3,9 @@ defmodule PhoenixBookshelf.BookTest do
 
   alias PhoenixBookshelf.Book
 
-  @valid_attrs %{isbn: "9781408855713",
-                 title: "Harry Potter and the Deathly Hallows",
-                 image_url: "http://harrypotterfanzone.com/wp-content/2009/06/dh_signature.jpg"}
+  @valid_attrs   %{isbn: "9781408855713",
+                   title: "Harry Potter and the Deathly Hallows",
+                   image_url: "http://harrypotterfanzone.com/wp-content/2009/06/dh_signature.jpg"}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do
