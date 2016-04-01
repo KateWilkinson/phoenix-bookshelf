@@ -30,7 +30,8 @@ defmodule PhoenixBookshelf.BookController do
 
   def show(conn, %{"id" => id}) do
     book = Repo.get!(Book, id)
-    render(conn, "show.html", book: book)
+    book_info = HTTPotion.get "http://google.com"
+    render(conn, "show.html", book: book, book_info: book_info)
   end
 
   def edit(conn, %{"id" => id}) do
