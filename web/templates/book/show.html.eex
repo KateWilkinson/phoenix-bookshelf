@@ -12,6 +12,13 @@
     <%= @book.isbn %>
   </li>
 
+  <li>
+    <strong>Stuff from amazon:</strong>
+    <%= @title %>
+    <%= @author %>
+    <%= @publisher %>
+  </li>
+
 </ul>
 
 <%= link "Edit", to: book_path(@conn, :edit, @book) %>
