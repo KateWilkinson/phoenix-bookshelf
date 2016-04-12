@@ -1,5 +1,7 @@
 defmodule PhoenixBookshelf.Book do
   use PhoenixBookshelf.Web, :model
+  use Timex
+
   require Record
   Record.defrecord :xmlElement, Record.extract(:xmlElement, from_lib: "xmerl/include/xmerl.hrl")
   Record.defrecord :xmlText,    Record.extract(:xmlText,    from_lib: "xmerl/include/xmerl.hrl")
