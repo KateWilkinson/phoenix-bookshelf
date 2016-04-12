@@ -65,7 +65,8 @@ defmodule PhoenixBookshelf.Book do
   def sign_request(url) do
     url_parts = URI.parse(url)
     request = "GET\n#{url_parts.host}\n#{url_parts.path}\n#{url_parts.query}"
-    signature = :crypto.hmac(:sha256, @secret_key, request) |> Base.encode16
+    signature = :crypto.hmac(:sha256, @secret_key, request) |> Base.encode16(case: :lower) |> Base.encode64
+    signature = URI.encode(signature, &URI.char_unreserved?/1)
     IO.inspect signature
     "#{url}&Signature=#{signature}"
   end
@@ -73,6 +74,7 @@ defmodule PhoenixBookshelf.Book do
   def timestamp do
     date = DateTime.universal
     { _, timestamp} = Timex.format(date, "{ISOz}")
+    # { _, timestamp} = Timex.format(date, "%Y-%m-%dT%H:%M:%S.000Z", :strftime)
     URI.encode(timestamp, &URI.char_unreserved?/1)
   end
 
