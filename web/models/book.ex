@@ -19,7 +19,7 @@ defmodule PhoenixBookshelf.Book do
   @access_key System.get_env("AWSAccessKeyId")
   @secret_key System.get_env("AWSSecretKey")
   @associate_tag System.get_env("AssociateTag")
-  @test_isbn "9780091922344"
+  @isbn "9780091922344"
 
   @doc """
   Creates a changeset based on the `model` and `params`.
@@ -37,7 +37,8 @@ defmodule PhoenixBookshelf.Book do
   end
 
   def amazon_info do
-    response = HTTPotion.get ...
+    response = HTTPotion.get(sign_request(url))
+    response.body
   end
 
   def get_attribute(attr) do
@@ -51,7 +52,6 @@ defmodule PhoenixBookshelf.Book do
     [element] = :xmerl_xpath.string('/ItemLookupResponse/Items/Item[1]/ItemAttributes/#{attr}[1]', xml)
     [text] = xmlElement(element, :content)
     value = xmlText(text, :value)
-    IO.inspect to_string(value)
   end
 
   def scan_text(text) do
@@ -61,9 +61,22 @@ defmodule PhoenixBookshelf.Book do
   def remove_pound(xml) do
     String.replace(xml,"£","")
   end
-end
 
-defp sign_request do
-  string_to_sign = "GET\nwebservices.amazon.com\n/onca/xml\n" <> "AWSAccessKeyId=#{@access_key}&AssociateTag=#{@associate_tag}&ItemId=0679722769&Operation=ItemLookup&ResponseGroup=ItemAttributes&Service=AWSECommerceService&Timestamp=#{PUT TIMESTAMP HERE}&Version=2013-08-01"
-  :crypto.hmac(:sha256, 'ThisIsMySecretAccessKey', request)
+  def sign_request(url) do
+    url_parts = URI.parse(url)
+    request = "GET\n#{url_parts.host}\n#{url_parts.path}\n#{url_parts.query}"
+    signature = :crypto.hmac(:sha256, @secret_key, request) |> Base.encode16
+    IO.inspect signature
+    "#{url}&Signature=#{signature}"
+  end
+
+  def timestamp do
+    date = DateTime.universal
+    { _, timestamp} = Timex.format(date, "{ISOz}")
+    URI.encode(timestamp, &URI.char_unreserved?/1)
+  end
+
+  def url do
+    "http://webservices.amazon.co.uk/onca/xml?AWSAccessKeyId=#{@access_key}&AssociateTag=#{@associate_tag}&IdType=ISBN&ItemId=#{@isbn}&Operation=ItemLookup&ResponseGroup=ItemAttributes&SearchIndex=Books&Service=AWSECommerceService&Timestamp=#{timestamp}&Version=2013-08-01"
+  end
 end
