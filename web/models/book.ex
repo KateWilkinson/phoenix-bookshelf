@@ -37,7 +37,7 @@ defmodule PhoenixBookshelf.Book do
   end
 
   def amazon_info do
-    response = HTTPotion.get(sign_request(url))
+    response = HTTPotion.get(url)
     response.body
   end
 
@@ -62,23 +62,53 @@ defmodule PhoenixBookshelf.Book do
     String.replace(xml,"£","")
   end
 
-  def sign_request(url) do
-    url_parts = URI.parse(url)
-    request = "GET\n#{url_parts.host}\n#{url_parts.path}\n#{url_parts.query}"
-    signature = :crypto.hmac(:sha256, @secret_key, request) |> Base.encode16(case: :lower) |> Base.encode64
-    signature = URI.encode(signature, &URI.char_unreserved?/1)
-    IO.inspect signature
-    "#{url}&Signature=#{signature}"
-  end
-
-  def timestamp do
-    date = DateTime.universal
-    { _, timestamp} = Timex.format(date, "{ISOz}")
-    # { _, timestamp} = Timex.format(date, "%Y-%m-%dT%H:%M:%S.000Z", :strftime)
-    URI.encode(timestamp, &URI.char_unreserved?/1)
-  end
-
   def url do
-    "http://webservices.amazon.co.uk/onca/xml?AWSAccessKeyId=#{@access_key}&AssociateTag=#{@associate_tag}&IdType=ISBN&ItemId=#{@isbn}&Operation=ItemLookup&ResponseGroup=ItemAttributes&SearchIndex=Books&Service=AWSECommerceService&Timestamp=#{timestamp}&Version=2013-08-01"
+    "http://webservices.amazon.co.uk/onca/xml?#{query_string}"
+      |> URI.parse
+      |> timestamp_url
+      |> sign_url
+      |> String.Chars.to_string
+  end
+
+  def query_string do
+    %{
+      "AWSAccessKeyId" => @access_key,
+      "AssociateTag" => @associate_tag,
+      "IdType" => "ISBN",
+      "ItemId" => @isbn,
+      "Operation" => "ItemLookup",
+      "ResponseGroup" => "ItemAttributes",
+      "SearchIndex" => "Books",
+      "Service" => "AWSECommerceService"
+    } |> URI.encode_query
+  end
+
+  defp sign_url(url_parts) do
+    signature = :crypto.hmac(:sha256, @secret_key, Enum.join(["GET", url_parts.host, url_parts.path, url_parts.query], "\n"))
+      |> Base.encode64
+    update_url url_parts, "Signature", signature
+  end
+
+  defp update_url(url_parts, key, value) do
+    updated_query = url_parts.query
+                        |> URI.decode_query
+                        |> Map.put_new(key, value)
+                        |> percent_encode_query
+    Map.put url_parts, :query, updated_query
+  end
+
+  defp timestamp_url(url_parts) do
+    { _, timestamp} = DateTime.universal |> Timex.format("{ISOz}")
+    update_url url_parts, "Timestamp", timestamp
+  end
+
+  # see https://github.com/zachgarwood/elixir-amazon-product-advertising-client/blob/master/lib/amazon_product_advertising_client.ex
+  defp pair({k, v}) do
+    URI.encode(Kernel.to_string(k), &URI.char_unreserved?/1) <>
+    "=" <> URI.encode(Kernel.to_string(v), &URI.char_unreserved?/1)
+  end
+
+  defp percent_encode_query(query_map) do
+    Enum.map_join(query_map, "&", &pair/1)
   end
 end
