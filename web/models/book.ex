@@ -36,13 +36,13 @@ defmodule PhoenixBookshelf.Book do
     |> unique_constraint(:isbn, message: "ISBN has already been added")
   end
 
-  def amazon_info do
-    response = HTTPotion.get(url)
+  def amazon_info(isbn) do
+    response = HTTPotion.get(url(isbn))
     response.body
   end
 
-  def get_attribute(attr) do
-    amazon_info
+  def get_attribute(attr, isbn) do
+    amazon_info(isbn)
       |> remove_pound
       |> scan_text
       |> parse(attr)
@@ -62,20 +62,20 @@ defmodule PhoenixBookshelf.Book do
     String.replace(xml,"£","")
   end
 
-  def url do
-    "http://webservices.amazon.co.uk/onca/xml?#{query_string}"
+  def url(isbn) do
+    "http://webservices.amazon.co.uk/onca/xml?#{query_string(isbn)}"
       |> URI.parse
       |> timestamp_url
       |> sign_url
       |> String.Chars.to_string
   end
 
-  def query_string do
+  def query_string(isbn) do
     %{
       "AWSAccessKeyId" => @access_key,
       "AssociateTag" => @associate_tag,
       "IdType" => "ISBN",
-      "ItemId" => @isbn,
+      "ItemId" => isbn,
       "Operation" => "ItemLookup",
       "ResponseGroup" => "ItemAttributes",
       "SearchIndex" => "Books",

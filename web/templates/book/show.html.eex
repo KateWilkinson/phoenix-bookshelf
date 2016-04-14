@@ -4,7 +4,12 @@
 
   <li>
     <strong>Title:</strong>
-    <%= @book.title %>
+    <%= @title %>
+  </li>
+
+  <li>
+    <strong>Author</strong>
+    <%= @author %>
   </li>
 
   <li>
@@ -13,9 +18,7 @@
   </li>
 
   <li>
-    <strong>Stuff from amazon:</strong>
-    <%= @title %>
-    <%= @author %>
+    <strong>Publisher</strong>
     <%= @publisher %>
   </li>
 

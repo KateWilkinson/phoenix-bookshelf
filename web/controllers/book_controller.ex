@@ -30,9 +30,10 @@ defmodule PhoenixBookshelf.BookController do
 
   def show(conn, %{"id" => id}) do
     book = Repo.get!(Book, id)
-    title = Book.get_title
-    author = Book.get_author
-    publisher = Book.get_publisher
+    isbn = book.isbn
+    title = Book.get_attribute("Title", isbn)
+    author = Book.get_attribute("Author", isbn)
+    publisher = Book.get_attribute("Publisher", isbn)
     render(conn, "show.html", book: book, title: title, author: author, publisher: publisher)
   end
 
